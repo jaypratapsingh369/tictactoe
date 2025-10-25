@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mind-Blowing Tic Tac Toe</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        /* Additional styles for Tic Tac Toe */
+        .tictactoe-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: fadeIn 1s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            position: relative;
+        }
+
+        .decorative-emoji {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.3;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .emoji-1 { top: 10%; left: 10%; animation-delay: 0s; }
+        .emoji-2 { top: 20%; right: 15%; animation-delay: 1s; }
+        .emoji-3 { bottom: 15%; left: 15%; animation-delay: 2s; }
+        .emoji-4 { bottom: 10%; right: 10%; animation-delay: 0.5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .side-decoration {
+            position: absolute;
+            width: 150px;
+            height: 200px;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .left-decoration {
+            left: -80px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50%" font-size="40" fill="rgba(255,255,255,0.3)">🎮</text></svg>');
+            background-size: cover;
+        }
+
+        .right-decoration {
+            right: -80px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50%" font-size="40" fill="rgba(255,255,255,0.3)">🏆</text></svg>');
+            background-size: cover;
+        }
+
+        .game-content {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px auto;
+            width: 300px;
+            height: 300px;
+            position: relative;
+        }
+
+        .cell {
+            background: linear-gradient(145deg, #ffffff, #e6e6e6);
+            border: none;
+            border-radius: 15px;
+            font-size: 4rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cell:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.2);
+        }
+
+        .cell.x::after {
+            content: '❌';
+            color: #007bff;
+            animation: popIn 0.3s ease-out, glowBlue 1s ease-in-out infinite alternate;
+        }
+
+        .cell.o::after {
+            content: '⭕';
+            color: #007bff;
+            animation: popIn 0.3s ease-out, glowBlue 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes glowBlue {
+            from {
+                color: #007bff;
+                text-shadow: 0 0 5px #007bff, 0 0 10px #007bff, 0 0 15px #007bff;
+            }
+            to {
+                color: #0056b3;
+                text-shadow: 0 0 10px #0056b3, 0 0 20px #0056b3, 0 0 30px #0056b3;
+            }
+        }
+
+        .status {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .reset-btn {
+            background: linear-gradient(45deg, #ff9ff3, #f368e0);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+            display: block;
+            margin: 20px auto;
+        }
+
+        .reset-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.3);
+        }
+
+        .winner-line {
+            position: absolute;
+            background: linear-gradient(90deg, #007bff, #0056b3, #007bff);
+            height: 8px;
+            border-radius: 4px;
+            z-index: 10;
+            box-shadow: 0 0 20px rgba(0, 123, 255, 0.8);
+            animation: blink 0.8s ease-in-out infinite alternate;
+        }
+
+        .winner-line.horizontal {
+            width: 100%;
+            left: 0;
+        }
+
+        .winner-line.vertical {
+            height: 100%;
+            width: 8px;
+            top: 0;
+        }
+
+        .winner-line.diagonal {
+            width: calc(100% * 1.414);
+            transform-origin: center;
+        }
+
+        .winner-line.diagonal-1 {
+            transform: rotate(45deg);
+        }
+
+        .winner-line.diagonal-2 {
+            transform: rotate(-45deg);
+        }
+
+        @keyframes blink {
+            from { opacity: 1; box-shadow: 0 0 20px rgba(0, 123, 255, 0.8); }
+            to { opacity: 0.3; box-shadow: 0 0 5px rgba(0, 123, 255, 0.3); }
+        }
+
+        .game-over-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .game-over-content {
+            background: linear-gradient(135deg, #ff9ff3, #f368e0);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            animation: bounceIn 0.6s ease-out;
+        }
+
+        .game-over-content h2 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .game-over-content p {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+
+        .game-over-content button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .game-over-content button:hover {
+            transform: scale(1.05);
+        }
+
+        @keyframes bounceIn {
+            from { transform: scale(0.3); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        body {
+            background: url('https://images.unsplash.com/photo-1557683316-973673baf926?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-size: cover;
+            overflow: hidden;
+        }
+
+        .tictactoe-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            z-index: -1;
+        }
+
+        .tictactoe-container {
+            position: relative;
+        }
+
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.2) 70%);
+            border-radius: 50%;
+            animation: particleFloat 4s linear infinite;
+        }
+
+        @keyframes particleFloat {
+            from { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            to { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="tictactoe-container">
+        <div class="decorative-emoji emoji-1">🎯</div>
+        <div class="decorative-emoji emoji-2">⭐</div>
+        <div class="decorative-emoji emoji-3">🎪</div>
+        <div class="decorative-emoji emoji-4">🎨</div>
+
+        <div class="side-decoration left-decoration"></div>
+        <div class="side-decoration right-decoration"></div>
+
+        <div class="game-content">
+            <h1 style="color: white; text-align: center; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">🎮 Mind-Blowing Tic Tac Toe 🎮</h1>
+            <div id="status" class="status">Player ❌'s turn</div>
+            <div class="game-board" id="gameBoard">
+                <div class="cell" data-cell></div>
+                <div class="cell" data-cell></div>
+                <div class="cell" data-cell></div>
+                <div class="cell" data-cell></div>
+                <div class="cell" data-cell></div>
+                <div class="cell" data-cell></div>
+                <div class="cell" data-cell></div>
+                <div class="cell" data-cell></div>
+                <div class="cell" data-cell></div>
+            </div>
+            <button id="resetButton" class="reset-btn">🔄 Reset Game</button>
+        </div>
+    </div>
+
+    <div id="gameOver" class="game-over-overlay" style="display: none;">
+        <div class="game-over-content">
+            <h2 id="gameOverTitle">🎉 Game Over! 🎉</h2>
+            <p id="gameOverMessage">Player ❌ Wins!</p>
+            <button id="playAgainButton">🎮 Play Again</button>
+        </div>
+    </div>
+
+    <script src="tictactoe.js"></script>
+    <script>
+        // Create floating particles
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.animationDelay = Math.random() * 4 + 's';
+            document.body.appendChild(particle);
+
+            setTimeout(() => {
+                particle.remove();
+            }, 4000);
+        }
+
+        setInterval(createParticle, 300);
+    </script>
+</body>
+</html>
